@@ -28,7 +28,8 @@ function toggleWishlist(id) {
 function openProductDetails(product) {
 	const modal = document.createElement('dialog');
 	modal.className = 'product-modal';
-	modal.innerHTML = `<button class="modal-close icon-button" type="button" data-close-modal aria-label="Close product details">&times;</button><div class="modal-image"><img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}"></div><div class="modal-copy"><p class="eyebrow">${escapeHtml(titleCase(product.category))}</p><h2>${escapeHtml(product.title)}</h2><div class="modal-rating"><span>${stars(getRating(product))}</span> ${getRating(product)} / 5</div><p>${escapeHtml(product.description)}</p><strong class="modal-price">${formatCurrency(product.price)}</strong><div class="modal-actions"><div class="quantity-control"><button type="button" data-quantity-decrease aria-label="Decrease quantity">-</button><span data-modal-quantity>1</span><button type="button" data-quantity-increase aria-label="Increase quantity">+</button></div><button class="button button-dark" type="button" data-modal-add>Add to bag <span>&#8594;</span></button></div></div>`;
+	modal.setAttribute('aria-labelledby', `product-detail-${product.id}`);
+	modal.innerHTML = `<button class="modal-close icon-button" type="button" data-close-modal aria-label="Close product details">&times;</button><div class="modal-image"><img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}"></div><div class="modal-copy"><p class="eyebrow">${escapeHtml(titleCase(product.category))}</p><h2 id="product-detail-${product.id}">${escapeHtml(product.title)}</h2><div class="modal-rating"><span>${stars(getRating(product))}</span> ${getRating(product)} / 5</div><p>${escapeHtml(product.description)}</p><strong class="modal-price">${formatCurrency(product.price)}</strong><div class="modal-actions"><div class="quantity-control"><button type="button" data-quantity-decrease aria-label="Decrease quantity">-</button><span data-modal-quantity>1</span><button type="button" data-quantity-increase aria-label="Increase quantity">+</button></div><button class="button button-dark" type="button" data-modal-add>Add to bag <span>&#8594;</span></button></div></div>`;
 	document.body.append(modal);
 	modal.showModal();
 	let quantity = 1;
@@ -84,5 +85,11 @@ export async function initProducts() {
 		renderCurrentProducts();
 		document.querySelectorAll('[data-clear-filters]').forEach((button) => button.addEventListener('click', () => window.location.assign('products.html')));
 		bindProductActions();
+		const requestedId = Number(params.get('id'));
+		if (params.has('id')) {
+			const requestedProduct = products.find((product) => product.id === requestedId);
+			if (requestedProduct) openProductDetails(requestedProduct);
+			else showToast('That product could not be found.');
+		}
 	} catch (error) { showError(grid, error.message); document.querySelector('[data-retry-products]')?.addEventListener('click', () => initProducts()); }
 }
