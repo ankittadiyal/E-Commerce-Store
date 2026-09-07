@@ -5,3 +5,11 @@ export function getStored(key, fallback = []) {
 }
 
 export function setStored(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+
+export function getCartCount() {
+  return getStored(STORAGE_KEYS.cart).reduce((total, item) => total + item.quantity, 0);
+}
+
+export function getWishlistCount() {
+  return getStored(STORAGE_KEYS.wishlist).length;
+}
