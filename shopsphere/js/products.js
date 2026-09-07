@@ -73,6 +73,10 @@ export async function initProducts() {
 	try {
 		products = await fetchProducts();
 		const params = new URLSearchParams(window.location.search);
+		if (params.get('wishlist') === 'true') {
+			const wishlistIds = new Set(getStored(STORAGE_KEYS.wishlist).map((product) => product.id));
+			products = products.filter((product) => wishlistIds.has(product.id));
+		}
 		const { filters } = initFilters({ initial: { search: params.get('search') || '', category: params.get('category') || 'all' }, onChange: (nextFilters) => { currentVisibleProducts = filterProducts(products, nextFilters); if (nextFilters.price) document.querySelector('[data-price-output]').textContent = formatCurrency(nextFilters.price); renderCurrentProducts(); } });
 		const categorySelect = document.querySelector('[data-filter-category]');
 		[...new Set(products.map((product) => product.category))].sort().forEach((category) => categorySelect?.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(category)}">${escapeHtml(titleCase(category))}</option>`));
