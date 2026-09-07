@@ -3,3 +3,15 @@
 .form-hint { color: var(--muted); font-size: .72rem; margin: 16px 0 0; }
 .order-history { border-top: 1px solid var(--ink); margin-top: 90px; padding-top: 35px; }
 .order-history h2 { font-size: 2rem; margin-bottom: 25px; }
+.history-list { display: grid; gap: 15px; }
+.history-card { background: var(--surface); padding: 24px; }
+.history-header, .history-footer { align-items: center; display: flex; justify-content: space-between; }
+.history-header strong { font-family: Syne, sans-serif; font-size: 1rem; }
+.history-header p, .history-footer { color: var(--muted); font-size: .75rem; margin: 6px 0 0; }
+.status-badge { font-size: .65rem; font-weight: 700; letter-spacing: .08em; padding: 6px 9px; text-transform: uppercase; }
+.status-processing { background: var(--accent-soft); color: var(--ink); }
+.status-shipped { background: var(--lavender); color: var(--ink); }
+.status-delivered { background: var(--sage); color: var(--ink); }
+.history-items { border-bottom: 1px solid var(--line); border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 12px 25px; margin: 18px 0; padding: 15px 0; }
+.history-items span { font-size: .75rem; }
+.history-items small { color: var(--muted); }

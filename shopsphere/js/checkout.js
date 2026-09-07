@@ -30,14 +30,24 @@ function renderConfirmation(order) {
 	container.innerHTML = `<section class="confirmation"><div class="confirmation-mark">&#10003;</div><p class="eyebrow">Order placed</p><h1>It is on its way.</h1><p>Thanks, ${escapeHtml(order.address.fullName)}. We will send updates to ${escapeHtml(order.address.email)}.</p><div class="order-details"><div class="summary-row"><span>Order ID</span><strong>${order.id}</strong></div><div class="summary-row"><span>Estimated delivery</span><strong>${new Date(order.estimatedDelivery).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</strong></div><div class="summary-row"><span>Payment</span><strong>${escapeHtml(order.payment)}</strong></div><div class="summary-row"><span>Deliver to</span><strong>${escapeHtml(order.address.address)}, ${escapeHtml(order.address.city)}</strong></div><div class="summary-row total"><span>Total paid</span><strong>${formatCurrency(order.totals.total)}</strong></div></div><a class="button button-dark" href="products.html">Keep exploring <span>&#8594;</span></a></section>`;
 }
 
+function renderOrderHistory() {
+	const section = document.querySelector('[data-order-history]');
+	const orders = getStored(STORAGE_KEYS.orders);
+	if (!section || !orders.length) return;
+	section.hidden = false;
+	section.innerHTML = `<p class="eyebrow">Your account, locally</p><h2>Order history.</h2><div class="history-list">${orders.map((order) => `<article class="history-card"><div class="history-header"><div><strong>${order.id}</strong><p>${new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p></div><span class="status-badge status-${order.status.toLowerCase()}">${order.status}</span></div><div class="history-items">${order.items.map((item) => `<span>${escapeHtml(item.title)} <small>&times;${item.quantity}</small></span>`).join('')}</div><div class="history-footer"><span>${escapeHtml(order.address.city)}, ${escapeHtml(order.address.state)}</span><strong>${formatCurrency(order.totals.total)}</strong></div></article>`).join('')}</div>`;
+}
+
 export function initCheckout() {
 	renderCheckout();
+	renderOrderHistory();
 	document.querySelector('[data-checkout-view]')?.addEventListener('submit', (event) => {
 		if (!event.target.matches('[data-checkout-form]')) return;
 		event.preventDefault();
 		if (!event.target.reportValidity()) return;
 		const order = createOrder(event.target);
 		renderConfirmation(order);
+		renderOrderHistory();
 		updateCounters();
 	});
 }
