@@ -1,4 +1,3 @@
-export function initCart() {}
 import { getStored, setStored, STORAGE_KEYS } from './storage.js';
 import { escapeHtml, formatCurrency, titleCase } from './utils.js';
 import { showToast, updateCounters } from './ui.js';

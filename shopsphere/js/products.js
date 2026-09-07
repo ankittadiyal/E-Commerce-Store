@@ -1,4 +1,3 @@
-export function initProducts() {}
 import { fetchProducts } from './api.js';
 import { addToCart } from './cart.js';
 import { filterProducts, initFilters } from './filters.js';

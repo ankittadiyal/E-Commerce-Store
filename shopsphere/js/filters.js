@@ -1,4 +1,3 @@
-export function initFilters() {}
 export function filterProducts(products, filters) {
 	const search = filters.search.trim().toLowerCase();
 	return products.filter((product) => {

@@ -1,6 +1,6 @@
 export function formatCurrency(value) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value); }
 
-export function titleCase(value) { return value.replace(/\b\w/g, (letter) => letter.toUpperCase()); }
+export function titleCase(value) { return value.split(' ').map((word) => word ? `${word[0].toUpperCase()}${word.slice(1)}` : word).join(' '); }
 
 export function escapeHtml(value) {
 	return String(value).replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#039;', '"': '&quot;' }[character]));
