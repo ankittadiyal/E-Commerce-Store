@@ -34,7 +34,7 @@ function openProductDetails(product) {
 	let quantity = 1;
 	modal.querySelector('[data-quantity-decrease]').addEventListener('click', () => { quantity = Math.max(1, quantity - 1); modal.querySelector('[data-modal-quantity]').textContent = quantity; });
 	modal.querySelector('[data-quantity-increase]').addEventListener('click', () => { quantity += 1; modal.querySelector('[data-modal-quantity]').textContent = quantity; });
-	modal.querySelector('[data-modal-add]').addEventListener('click', () => { addToCart(product, quantity); updateCounters(); showToast('Added to your bag.'); modal.close(); });
+	modal.querySelector('[data-modal-add]').addEventListener('click', () => { addToCart(product, quantity); updateCounters(); showToast('Added to your bag.', 'success'); modal.close(); });
 	modal.querySelector('[data-close-modal]').addEventListener('click', () => modal.close());
 	modal.addEventListener('close', () => modal.remove());
 }
@@ -53,7 +53,7 @@ function bindProductActions() {
 		const wishlistButton = event.target.closest('[data-wishlist-id]');
 		if (wishlistButton) { event.preventDefault(); toggleWishlist(Number(wishlistButton.dataset.wishlistId)); return; }
 		const addButton = event.target.closest('[data-add-to-cart]');
-		if (addButton) { const product = products.find((item) => item.id === Number(addButton.dataset.addToCart)); if (product) { addToCart(product); updateCounters(); showToast('Added to your bag.'); } return; }
+		if (addButton) { const product = products.find((item) => item.id === Number(addButton.dataset.addToCart)); if (product) { addToCart(product); updateCounters(); showToast('Added to your bag.', 'success'); } return; }
 		const detailLink = event.target.closest('[data-view-product]');
 		if (detailLink) { event.preventDefault(); const product = products.find((item) => item.id === Number(detailLink.dataset.viewProduct)); if (product) openProductDetails(product); }
 	});
@@ -76,7 +76,7 @@ export async function initProducts() {
 			const wishlistIds = new Set(getStored(STORAGE_KEYS.wishlist).map((product) => product.id));
 			products = products.filter((product) => wishlistIds.has(product.id));
 		}
-		const { filters } = initFilters({ initial: { search: params.get('search') || '', category: params.get('category') || 'all' }, onChange: (nextFilters) => { currentVisibleProducts = filterProducts(products, nextFilters); if (nextFilters.price) document.querySelector('[data-price-output]').textContent = formatCurrency(nextFilters.price); renderCurrentProducts(); } });
+		const { filters } = initFilters({ initial: { search: params.get('search') || '', category: params.get('category') || 'all', sort: params.get('sort') || 'featured' }, onChange: (nextFilters) => { currentVisibleProducts = filterProducts(products, nextFilters); if (nextFilters.price) document.querySelector('[data-price-output]').textContent = formatCurrency(nextFilters.price); renderCurrentProducts(); } });
 		const categorySelect = document.querySelector('[data-filter-category]');
 		[...new Set(products.map((product) => product.category))].sort().forEach((category) => categorySelect?.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(category)}">${escapeHtml(titleCase(category))}</option>`));
 		if (filters.category !== 'all') categorySelect.value = filters.category;
@@ -88,7 +88,7 @@ export async function initProducts() {
 		if (params.has('id')) {
 			const requestedProduct = products.find((product) => product.id === requestedId);
 			if (requestedProduct) openProductDetails(requestedProduct);
-			else showToast('That product could not be found.');
+			else showToast('That product could not be found.', 'error');
 		}
 	} catch (error) { showError(grid, error.message); document.querySelector('[data-retry-products]')?.addEventListener('click', () => initProducts()); }
 }

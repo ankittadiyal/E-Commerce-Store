@@ -1,13 +1,19 @@
 import { getCartCount, getWishlistCount } from './storage.js';
 
-export function showToast(message) {
+const toastIcons = { success: '✓', error: '!', info: 'i', warning: '!' };
+
+export function showToast(message, type = 'info') {
   const region = document.querySelector('.toast-region');
   if (!region) return;
   const toast = document.createElement('div');
-  toast.className = 'toast';
-  toast.textContent = message;
+  toast.className = `toast toast-${type}`;
+  toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
+  toast.innerHTML = `<span class="toast-icon" aria-hidden="true">${toastIcons[type] || toastIcons.info}</span><span class="toast-message"></span><button class="toast-close" type="button" aria-label="Dismiss notification">&times;</button>`;
+  toast.querySelector('.toast-message').textContent = message;
+  const dismiss = () => { toast.classList.add('is-leaving'); window.setTimeout(() => toast.remove(), 180); };
+  toast.querySelector('.toast-close').addEventListener('click', dismiss);
   region.append(toast);
-  window.setTimeout(() => toast.remove(), 3200);
+  window.setTimeout(dismiss, 3200);
 }
 
 export function updateCounters() {
@@ -37,6 +43,6 @@ export function initUI() {
   document.querySelector('.newsletter-form')?.addEventListener('submit', (event) => {
     event.preventDefault();
     event.currentTarget.reset();
-    showToast('You are on the list. Welcome to the edit.');
+    showToast('You are on the list. Welcome to the edit.', 'success');
   });
 }

@@ -23,9 +23,12 @@ export function initFilters({ onChange, initial = {} }) {
 		rating: document.querySelector('[data-filter-rating]'),
 		sort: document.querySelector('[data-filter-sort]')
 	};
-	const filters = { search: initial.search || '', category: initial.category || 'all', price: 1000, rating: 0, sort: 'featured' };
+	const filters = { search: initial.search || '', category: initial.category || 'all', price: initial.price || 1000, rating: initial.rating || 0, sort: initial.sort || 'featured' };
 	if (elements.search) elements.search.value = filters.search;
 	if (elements.category) elements.category.value = filters.category;
+	if (elements.price) elements.price.value = filters.price;
+	if (elements.rating) elements.rating.value = filters.rating;
+	if (elements.sort) elements.sort.value = filters.sort;
 
 	Object.entries(elements).forEach(([key, element]) => element?.addEventListener('input', () => {
 		filters[key] = element.value;

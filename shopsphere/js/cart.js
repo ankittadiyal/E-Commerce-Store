@@ -32,7 +32,7 @@ export function calculateTotals(coupon = '') {
 }
 
 function renderSummary(totals, coupon) {
-	return `<aside class="summary-card"><h2>Order summary</h2><form class="coupon-form" data-coupon-form><label class="sr-only" for="coupon-code">Coupon code</label><input id="coupon-code" name="coupon" value="${coupon}" placeholder="Coupon code" autocomplete="off"><button type="submit">Apply</button></form>${totals.discountRate ? `<p class="coupon-note">${totals.discountRate * 100}% discount applied.</p>` : ''}<div class="summary-row"><span>Subtotal</span><span>${formatCurrency(totals.subtotal)}</span></div><div class="summary-row"><span>Discount</span><span>-${formatCurrency(totals.discount)}</span></div><div class="summary-row"><span>Shipping</span><span>${totals.shipping ? formatCurrency(totals.shipping) : 'Free'}</span></div><div class="summary-row total"><span>Total</span><span>${formatCurrency(totals.total)}</span></div><a class="button button-dark" href="checkout.html">Continue to checkout <span>&#8594;</span></a></aside>`;
+	return `<aside class="summary-card"><h2>Order summary</h2><form class="coupon-form" data-coupon-form><label class="sr-only" for="coupon-code">Coupon code</label><input id="coupon-code" name="coupon" value="${coupon}" placeholder="Coupon code" autocomplete="off"><button type="submit">Apply</button></form>${totals.discountRate ? `<p class="coupon-note">${totals.discountRate * 100}% discount applied.</p>` : ''}<div class="summary-row"><span>Subtotal</span><span>${formatCurrency(totals.subtotal)}</span></div><div class="summary-row"><span>Discount</span><span>-${formatCurrency(totals.discount)}</span></div><div class="summary-row"><span>Shipping</span><span>${totals.shipping ? formatCurrency(totals.shipping) : 'Free'}</span></div><div class="summary-row total"><span>Total</span><span>${formatCurrency(totals.total)}</span></div><a class="button button-dark" href="checkout.html">Continue to checkout <span>&#8594;</span></a><button class="text-button clear-cart-button" type="button" data-clear-cart>Clear bag</button></aside>`;
 }
 
 function renderCart() {
@@ -53,15 +53,16 @@ export function initCart() {
 		const increase = event.target.closest('[data-cart-increase]');
 		const remove = event.target.closest('[data-cart-remove]');
 		if (decrease || increase) { const id = Number((decrease || increase).dataset.cartDecrease || (decrease || increase).dataset.cartIncrease); const item = getCart().find((product) => product.id === id); updateQuantity(id, item.quantity + (increase ? 1 : -1)); renderCart(); updateCounters(); }
-		if (remove) { removeFromCart(Number(remove.dataset.cartRemove)); renderCart(); updateCounters(); showToast('Removed from your bag.'); }
+		if (remove) { removeFromCart(Number(remove.dataset.cartRemove)); renderCart(); updateCounters(); showToast('Removed from your bag.', 'info'); }
+		if (event.target.closest('[data-clear-cart]')) { clearCart(); sessionStorage.removeItem('shopsphere-coupon'); renderCart(); updateCounters(); showToast('Cart cleared.', 'warning'); }
 	});
 	container.addEventListener('submit', (event) => {
 		if (!event.target.matches('[data-coupon-form]')) return;
 		event.preventDefault();
 		const coupon = new FormData(event.target).get('coupon').toString().trim().toUpperCase();
-		if (!['SAVE10', 'SAVE20', ''].includes(coupon)) { showToast('That coupon is not valid. Try SAVE10 or SAVE20.'); return; }
+		if (!['SAVE10', 'SAVE20', ''].includes(coupon)) { showToast('That coupon is not valid. Try SAVE10 or SAVE20.', 'error'); return; }
 		sessionStorage.setItem('shopsphere-coupon', coupon);
-		showToast(coupon ? `${coupon} applied to your order.` : 'Coupon removed.');
+		showToast(coupon ? `${coupon} applied to your order.` : 'Coupon removed.', 'success');
 		renderCart();
 	});
 }
