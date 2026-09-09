@@ -1,26 +1,25 @@
 import { fetchProducts } from './api.js';
 import { addToCart } from './cart.js';
 import { filterProducts, initFilters } from './filters.js';
-import { getStored, setStored, STORAGE_KEYS } from './storage.js';
+import { getStored, STORAGE_KEYS } from './storage.js';
+import { isWishlisted, toggleWishlist as toggleStoredWishlist } from './wishlist.js';
 import { escapeHtml, formatCurrency, getRating, stars, titleCase } from './utils.js';
 import { showToast, updateCounters } from './ui.js';
 
 let products = [];
 
-function isWishlisted(id) { return getStored(STORAGE_KEYS.wishlist).some((product) => product.id === id); }
-
 export function renderProductCard(product) {
-	return `<article class="product-card"><div class="product-image-wrap"><button class="wishlist-button ${isWishlisted(product.id) ? 'active' : ''}" type="button" data-wishlist-id="${product.id}" aria-label="${isWishlisted(product.id) ? 'Remove' : 'Add'} ${escapeHtml(product.title)} ${isWishlisted(product.id) ? 'from' : 'to'} wishlist">${isWishlisted(product.id) ? '♥' : '♡'}</button><a href="products.html?id=${product.id}" data-view-product="${product.id}"><img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" loading="lazy"></a></div><div class="product-info"><p class="product-category">${escapeHtml(titleCase(product.category))}</p><a class="product-title" href="products.html?id=${product.id}">${escapeHtml(product.title)}</a><div class="product-meta"><span class="product-price">${formatCurrency(product.price)}</span><span class="product-rating" title="${getRating(product)} out of 5">${stars(getRating(product))}</span></div><button class="add-button" type="button" data-add-to-cart="${product.id}">Add to bag</button></div></article>`;
+	const active = isWishlisted(product.id);
+	return `<article class="product-card"><div class="product-image-wrap"><button class="wishlist-button ${active ? 'active' : ''}" type="button" data-wishlist-id="${product.id}" aria-pressed="${active}" aria-label="${active ? 'Remove' : 'Add'} ${escapeHtml(product.title)} ${active ? 'from' : 'to'} wishlist"><span aria-hidden="true">${active ? '♥' : '♡'}</span></button><a href="products.html?id=${product.id}" data-view-product="${product.id}"><img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" loading="lazy"></a></div><div class="product-info"><p class="product-category">${escapeHtml(titleCase(product.category))}</p><a class="product-title" href="products.html?id=${product.id}">${escapeHtml(product.title)}</a><div class="product-meta"><span class="product-price">${formatCurrency(product.price)}</span><span class="product-rating" title="${getRating(product)} out of 5">${stars(getRating(product))}</span></div><button class="add-button" type="button" data-add-to-cart="${product.id}">Add to bag</button></div></article>`;
 }
 
 function showError(container, message) { container.innerHTML = `<div class="empty-state"><div class="empty-icon">!</div><h2>Something went off-script.</h2><p>${escapeHtml(message)}</p><button class="button button-dark" type="button" data-retry-products>Try again</button></div>`; }
 
 function toggleWishlist(id) {
-	const wishlist = getStored(STORAGE_KEYS.wishlist);
-	const index = wishlist.findIndex((product) => product.id === id);
-	if (index >= 0) { wishlist.splice(index, 1); showToast('Removed from your wishlist.'); }
-	else { const product = products.find((item) => item.id === id); if (product) { wishlist.push(product); showToast('Added to your wishlist.'); } }
-	setStored(STORAGE_KEYS.wishlist, wishlist);
+	const product = products.find((item) => item.id === id);
+	if (!product) return;
+	const added = toggleStoredWishlist(product);
+	showToast(added ? 'Added to wishlist ❤️' : 'Removed from wishlist');
 	updateCounters();
 	renderCurrentProducts();
 }
