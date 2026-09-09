@@ -76,13 +76,25 @@ export async function initProducts() {
 			const wishlistIds = new Set(getStored(STORAGE_KEYS.wishlist).map((product) => product.id));
 			products = products.filter((product) => wishlistIds.has(product.id));
 		}
-		const { filters } = initFilters({ initial: { search: params.get('search') || '', category: params.get('category') || 'all', sort: params.get('sort') || 'featured' }, onChange: (nextFilters) => { currentVisibleProducts = filterProducts(products, nextFilters); if (nextFilters.price) document.querySelector('[data-price-output]').textContent = formatCurrency(nextFilters.price); renderCurrentProducts(); } });
+		const { filters } = initFilters({ initial: { search: params.get('search') || '', category: params.get('category') || 'all', sort: params.get('sort') || 'featured' }, onChange: (nextFilters) => { currentVisibleProducts = filterProducts(products, nextFilters); if (nextFilters.price) document.querySelector('[data-price-output]').textContent = formatCurrency(nextFilters.price); const nextParams = new URLSearchParams(); if (nextFilters.search) nextParams.set('search', nextFilters.search); if (nextFilters.category !== 'all') nextParams.set('category', nextFilters.category); if (nextFilters.sort !== 'featured') nextParams.set('sort', nextFilters.sort); window.history.replaceState({}, '', `${window.location.pathname}${nextParams.toString() ? `?${nextParams}` : ''}`); renderCurrentProducts(); } });
 		const categorySelect = document.querySelector('[data-filter-category]');
 		[...new Set(products.map((product) => product.category))].sort().forEach((category) => categorySelect?.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(category)}">${escapeHtml(titleCase(category))}</option>`));
 		if (filters.category !== 'all') categorySelect.value = filters.category;
 		currentVisibleProducts = filterProducts(products, filters);
 		renderCurrentProducts();
-		document.querySelectorAll('[data-clear-filters]').forEach((button) => button.addEventListener('click', () => window.location.assign('products.html')));
+		document.querySelectorAll('[data-clear-filters], [data-clear]').forEach((button) => button.addEventListener('click', () => {
+			filters.search = '';
+			filters.category = 'all';
+			filters.price = 1000;
+			filters.rating = 0;
+			filters.sort = 'featured';
+			Object.entries({ search: '', category: 'all', price: 1000, rating: 0, sort: 'featured' }).forEach(([key, value]) => { if (filters[key] !== undefined) filters[key] = value; });
+			Object.entries({ search: '', category: 'all', price: 1000, rating: 0, sort: 'featured' }).forEach(([key, value]) => { const element = document.querySelector(`[data-filter-${key}]`); if (element) element.value = value; });
+			currentVisibleProducts = filterProducts(products, filters);
+			document.querySelector('[data-price-output]').textContent = formatCurrency(1000);
+			history.replaceState({}, '', window.location.pathname);
+			renderCurrentProducts();
+		}));
 		bindProductActions();
 		const requestedId = Number(params.get('id'));
 		if (params.has('id')) {
